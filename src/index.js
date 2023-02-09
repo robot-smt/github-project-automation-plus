@@ -28,7 +28,7 @@ const generateMutationQuery = require('./generate-mutation-query');
 		core.debug(JSON.stringify(resource));
 
 		// A list of columns that line up with the user entered project and column
-		const mutationQueries = generateMutationQuery(resource, project, column, nodeId, action);
+		const mutationQueries = generateMutationQuery(resource, project, column, nodeId || resource.nodeId, action);
 		if ((action === 'delete' || action === 'archive' || action === 'add') && mutationQueries.length === 0) {
 			console.log('✅ There is nothing to do with card');
 			return;
