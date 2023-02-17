@@ -1,6 +1,5 @@
 const core = require('@actions/core')
 const github = require('@actions/github')
-const exec = require('@actions/exec')
 const fs = require('fs')
 
 const getActionData = require('./get-action-data')
@@ -17,8 +16,8 @@ const generateMutationQuery = require('./generate-mutation-query')
         let issueIds = []
 
         if (findIssuesFromGitLogs === 'true') {
-            await exec.exec('git log $(git describe --tags --abbrev=0)..HEAD --oneline --merges > output.txt')
-            const logs = fs.readFileSync('output.txt')
+            const logs = fs.readFileSync('github_project_automation_plus_output_log')
+            core.debug(logs)
             issueIds = logs.split(/\r?\n/).map(
                 (x) =>
                     x
