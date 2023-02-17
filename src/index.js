@@ -1,50 +1,68 @@
-const core = require('@actions/core');
-const github = require('@actions/github');
+const core = require('@actions/core')
+const github = require('@actions/github')
+const exec = require('@actions/exec')
+const fs = require('fs')
 
-const getActionData = require('./get-action-data');
-const generateProjectQuery = require('./generate-project-query');
-const generateMutationQuery = require('./generate-mutation-query');
+const getActionData = require('./get-action-data')
+const generateProjectQuery = require('./generate-project-query')
+const generateMutationQuery = require('./generate-mutation-query')
 
-(async () => {
-	try {
-		const token = core.getInput('repo-token');
-		const project = core.getInput('project');
-		const column = core.getInput('column');
-		const action = core.getInput('action') || 'update';
+;(async () => {
+    try {
+        const token = core.getInput('repo-token')
+        const project = core.getInput('project')
+        const column = core.getInput('column')
+        const action = core.getInput('action') || 'update'
+        const findIssuesFromGitLogs = core.getInput('findIssuesFromGitLogs') || 'false'
+        let issueIds = []
 
-		// Get data from the current action
-		const {eventName, nodeId, url} = getActionData(github.context);
+        if (findIssuesFromGitLogs === 'true') {
+            await exec.exec('git log $(git describe --tags --abbrev=0)..HEAD --oneline --merges > output.txt')
+            const logs = fs.readFileSync('output.txt')
+            issueIds = logs.split(/\r?\n/).map(
+                (x) =>
+                    x
+                        .split('/')
+                        .pop()
+                        .match(/[0-9]+/)[0]
+            )
+        }
 
-		// Create a method to query GitHub
-		const octokit = new github.GitHub(token);
+        // Create a method to query GitHub
+        const octokit = new github.GitHub(token)
 
-		// Get the column ID from searching for the project and card Id if it exists
-		const projectQuery = generateProjectQuery(url, eventName, project);
+        for (const actionData of getActionData(github.context, issueIds)) {
+            // Get data from the current action
+            const { eventName, nodeId, url } = actionData
 
-		core.debug(projectQuery);
+            // Get the column ID from searching for the project and card Id if it exists
+            const projectQuery = generateProjectQuery(url, eventName, project)
 
-		const {resource} = await octokit.graphql(projectQuery);
+            core.debug(projectQuery)
 
-		core.debug(JSON.stringify(resource));
+            const { resource } = await octokit.graphql(projectQuery)
 
-		// A list of columns that line up with the user entered project and column
-		const mutationQueries = generateMutationQuery(resource, project, column, nodeId || resource.nodeId, action);
-		if ((action === 'delete' || action === 'archive' || action === 'add') && mutationQueries.length === 0) {
-			console.log('✅ There is nothing to do with card');
-			return;
-		}
+            core.debug(JSON.stringify(resource))
 
-		core.debug(mutationQueries.join('\n'));
+            // A list of columns that line up with the user entered project and column
+            const mutationQueries = generateMutationQuery(resource, project, column, nodeId || resource.nodeId, action)
+            if ((action === 'delete' || action === 'archive' || action === 'add') && mutationQueries.length === 0) {
+                console.log('✅ There is nothing to do with card')
+                return
+            }
 
-		// Run the graphql queries
-		await Promise.all(mutationQueries.map(query => octokit.graphql(query)));
+            core.debug(mutationQueries.join('\n'))
 
-		if (mutationQueries.length > 1) {
-			console.log(`✅ Card materialised into to ${column} in ${mutationQueries.length} projects called ${project}`);
-		} else {
-			console.log(`✅ Card materialised into ${column} in ${project}`);
-		}
-	} catch (error) {
-		core.setFailed(error.message);
-	}
-})();
+            // Run the graphql queries
+            await Promise.all(mutationQueries.map((query) => octokit.graphql(query)))
+
+            if (mutationQueries.length > 1) {
+                console.log(`✅ Card materialised into to ${column} in ${mutationQueries.length} projects called ${project}`)
+            } else {
+                console.log(`✅ Card materialised into ${column} in ${project}`)
+            }
+        }
+    } catch (error) {
+        core.setFailed(error.message)
+    }
+})()

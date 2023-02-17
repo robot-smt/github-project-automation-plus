@@ -17,6 +17,10 @@ inputs:
       to be performed on the card
     required: false
     default: "update"
+  findIssuesFromGitLogs:
+    description: 'If true it will get issue ids from HEAD until first tag.'
+    required: false
+    default: "false"
 runs:
   using: 'node16'
   main: 'dist/index.js'
