@@ -45,6 +45,11 @@ const generateMutationQuery = require('./generate-mutation-query')
 
             core.debug(JSON.stringify(resource))
 
+            if (!resource) {
+                console.log(`Card ${url} cannot be found in ${project}`)
+                continue
+            }
+
             // A list of columns that line up with the user entered project and column
             const mutationQueries = generateMutationQuery(resource, project, column, nodeId || resource.nodeId, action)
             if ((action === 'delete' || action === 'archive' || action === 'add') && mutationQueries.length === 0) {
