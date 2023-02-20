@@ -12,26 +12,8 @@ const generateMutationQuery = require('./generate-mutation-query')
         const project = core.getInput('project')
         const column = core.getInput('column')
         const action = core.getInput('action') || 'update'
-        const findIssuesFromGitLogs = core.getInput('findIssuesFromGitLogs') || 'false'
+        const issueIds = (core.getInput('issue-ids') || '').split(',')
         const dryRun = core.getInput('dryRun') || 'false'
-        let issueIds = []
-
-        if (findIssuesFromGitLogs === 'true') {
-            const { repository, organization } = github.context.payload
-            const logs = fs.readFileSync(`${process.env.RUNNER_WORKSPACE}/${repository.name}/github_project_automation_plus_output_log`).toString()
-            core.debug(logs)
-            issueIds = logs
-                .split(/\r?\n/)
-                .filter((x) => x.includes(`${organization.login}/`))
-                .map(
-                    (x) =>
-                        x
-                            .split('/')
-                            .pop()
-                            .match(/^[0-9]+/)?.[0]
-                )
-                .filter((value, index, array) => value && array.indexOf(value) === index)
-        }
 
         // Create a method to query GitHub
         const octokit = new github.GitHub(token)

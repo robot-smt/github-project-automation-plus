@@ -17,12 +17,12 @@ inputs:
             to be performed on the card
         required: false
         default: 'update'
-    findIssuesFromGitLogs:
-        description: 'If true it will get issue ids from HEAD until first tag.'
+    issue-ids:
+        description: 'List of comma separated GitHub issue ids'
         required: false
-        default: 'false'
+        default: ''
     dryRun:
-        description: 'If true then the card will not be changed'
+        description: 'If true then the affected cards will not be modified'
         required: false
         default: 'false'
 runs:
