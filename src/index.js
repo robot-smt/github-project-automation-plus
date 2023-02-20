@@ -18,6 +18,8 @@ const generateMutationQuery = require('./generate-mutation-query')
         if (findIssuesFromGitLogs === 'true') {
             const logs = fs.readFileSync('github_project_automation_plus_output_log').toString()
             core.debug(logs)
+            core.debug(__dirname)
+            core.debug(JSON.stringify(process.env))
             issueIds = logs.split(/\r?\n/).map(
                 (x) =>
                     x
