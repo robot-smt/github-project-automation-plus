@@ -35,6 +35,8 @@ const generateMutationQuery = require('./generate-mutation-query')
         // Create a method to query GitHub
         const octokit = new github.GitHub(token)
 
+        const updatedCards = []
+
         for (const actionData of getActionData(github.context, issueIds)) {
             // Get data from the current action
             const { eventName, nodeId, url } = actionData
@@ -60,6 +62,12 @@ const generateMutationQuery = require('./generate-mutation-query')
                 return
             }
 
+            updatedCards.push({
+                number: resource.number,
+                title: resource.title,
+                url
+            })
+
             core.debug(mutationQueries.join('\n'))
 
             // Run the graphql queries
@@ -70,6 +78,19 @@ const generateMutationQuery = require('./generate-mutation-query')
             } else {
                 console.log(`✅ Card materialised into ${column} in ${project}`)
             }
+        }
+
+        if (findIssuesFromGitLogs) {
+            await core.summary
+                .addHeading('Affected project cards')
+                .addTable([
+                    [
+                        { data: 'ID', header: true },
+                        { data: 'Title', header: true }
+                    ],
+                    updatedCards.map((x) => [x.number, `[${x.title}](${x.url})`])
+                ])
+                .write()
         }
     } catch (error) {
         core.setFailed(error.message)
