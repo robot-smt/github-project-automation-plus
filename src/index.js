@@ -16,17 +16,20 @@ const generateMutationQuery = require('./generate-mutation-query')
         let issueIds = []
 
         if (findIssuesFromGitLogs === 'true') {
-            const logs = fs.readFileSync(`${process.env.RUNNER_WORKSPACE}/${github.context.payload.repository.name}/github_project_automation_plus_output_log`).toString()
+            const { repository, organization } = github.context.payload
+            const logs = fs.readFileSync(`${process.env.RUNNER_WORKSPACE}/${repository.name}/github_project_automation_plus_output_log`).toString()
             core.debug(logs)
-            core.debug(__dirname)
-            core.debug(JSON.stringify(process.env))
-            issueIds = logs.split(/\r?\n/).map(
-                (x) =>
-                    x
-                        .split('/')
-                        .pop()
-                        .match(/[0-9]+/)[0]
-            )
+            issueIds = logs
+                .split(/\r?\n/)
+                .filter((x) => x.includes(`${organization.login}/`))
+                .map(
+                    (x) =>
+                        x
+                            .split('/')
+                            .pop()
+                            .match(/^[0-9]+/)?.[0]
+                )
+                .filter((value, index, array) => value && array.indexOf(value) === index)
         }
 
         // Create a method to query GitHub
