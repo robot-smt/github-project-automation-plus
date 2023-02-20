@@ -86,6 +86,8 @@ const generateMutationQuery = require('./generate-mutation-query')
         }
 
         if (findIssuesFromGitLogs && updatedCards.length) {
+            core.debug(JSON.stringify(updatedCards))
+
             await core.summary
                 .addHeading('Affected project cards')
                 .addTable([
