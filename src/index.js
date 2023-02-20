@@ -88,16 +88,12 @@ const generateMutationQuery = require('./generate-mutation-query')
         if (findIssuesFromGitLogs && updatedCards.length) {
             core.debug(JSON.stringify(updatedCards))
 
-            await core.summary
-                .addHeading('Affected project cards')
-                .addTable([
-                    [
-                        { data: 'ID', header: true },
-                        { data: 'Title', header: true }
-                    ],
-                    updatedCards.map((x) => [x.number, `[${x.title}](${x.url})`])
-                ])
-                .write()
+            const summaryMarkdown = `# Affected project cards
+            |ID|Title|
+            |---|---|
+            ${updatedCards.map((x) => `|${x.number}|[${x.title}](${x.url})|`).join('\r\n')}
+            `
+            core.setOutput('summaryMarkdown', summaryMarkdown)
         }
     } catch (error) {
         core.setFailed(error.message)
