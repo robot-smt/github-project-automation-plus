@@ -89,10 +89,9 @@ const generateMutationQuery = require('./generate-mutation-query')
             core.debug(JSON.stringify(updatedCards))
 
             const summaryMarkdown = `# Affected project cards
-            |ID|Title|
-            |---|---|
-            ${updatedCards.map((x) => `|${x.number}|[${x.title}](${x.url})|`).join('\r\n')}
-            `
+|ID|Title|
+|---|---|
+${updatedCards.map((x) => `|${x.number}|[${x.title}](${x.url})|`).join('\r\n')}`
             core.setOutput('summaryMarkdown', summaryMarkdown)
         }
     } catch (error) {
