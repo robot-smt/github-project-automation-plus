@@ -13,6 +13,7 @@ const generateMutationQuery = require('./generate-mutation-query')
         const column = core.getInput('column')
         const action = core.getInput('action') || 'update'
         const findIssuesFromGitLogs = core.getInput('findIssuesFromGitLogs') || 'false'
+        const dryRun = core.getInput('dryRun') || 'false'
         let issueIds = []
 
         if (findIssuesFromGitLogs === 'true') {
@@ -55,18 +56,22 @@ const generateMutationQuery = require('./generate-mutation-query')
                 continue
             }
 
+            updatedCards.push({
+                number: resource.number,
+                title: resource.title,
+                url
+            })
+
+            if (dryRun === 'true') {
+                continue
+            }
+
             // A list of columns that line up with the user entered project and column
             const mutationQueries = generateMutationQuery(resource, project, column, nodeId || resource.nodeId, action)
             if ((action === 'delete' || action === 'archive' || action === 'add') && mutationQueries.length === 0) {
                 console.log('✅ There is nothing to do with card')
                 return
             }
-
-            updatedCards.push({
-                number: resource.number,
-                title: resource.title,
-                url
-            })
 
             core.debug(mutationQueries.join('\n'))
 
@@ -80,7 +85,7 @@ const generateMutationQuery = require('./generate-mutation-query')
             }
         }
 
-        if (findIssuesFromGitLogs) {
+        if (findIssuesFromGitLogs && updatedCards.length) {
             await core.summary
                 .addHeading('Affected project cards')
                 .addTable([

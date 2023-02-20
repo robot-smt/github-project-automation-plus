@@ -2,28 +2,32 @@ name: 'GitHub Project Automation+'
 description: '🤖 Automate GitHub Project cards with any webhook event'
 author: 'Alex Page <alex@alexpage.com.au>'
 inputs:
-  repo-token:
-    description: 'The GH_TOKEN secret can be passed in using {{ secrets.GH_TOKEN }}'
-    required: true
-  project:
-    description: 'The name of the GitHub Project'
-    required: true
-  column:
-    description: 'The name of the column to move the issue or pull request to'
-    required: true
-  action:
-    description: |
-      Can be `update`, `delete` or `archive` or `add`. This determines the type of the action
-      to be performed on the card
-    required: false
-    default: "update"
-  findIssuesFromGitLogs:
-    description: 'If true it will get issue ids from HEAD until first tag.'
-    required: false
-    default: "false"
+    repo-token:
+        description: 'The GH_TOKEN secret can be passed in using {{ secrets.GH_TOKEN }}'
+        required: true
+    project:
+        description: 'The name of the GitHub Project'
+        required: true
+    column:
+        description: 'The name of the column to move the issue or pull request to'
+        required: true
+    action:
+        description: |
+            Can be `update`, `delete` or `archive` or `add`. This determines the type of the action
+            to be performed on the card
+        required: false
+        default: 'update'
+    findIssuesFromGitLogs:
+        description: 'If true it will get issue ids from HEAD until first tag.'
+        required: false
+        default: 'false'
+    dryRun:
+        description: 'If true then the card will not be changed'
+        required: false
+        default: 'false'
 runs:
-  using: 'node16'
-  main: 'dist/index.js'
+    using: 'node16'
+    main: 'dist/index.js'
 branding:
-  icon: 'cpu'
-  color: 'gray-dark'
+    icon: 'cpu'
+    color: 'gray-dark'
