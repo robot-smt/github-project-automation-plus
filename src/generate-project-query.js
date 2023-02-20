@@ -9,6 +9,7 @@ const projectQuery = (url, eventName, project) =>
 	`query {
 		resource( url: "${url}" ) {
 			... on ${eventName.startsWith('issue') ? 'Issue' : 'PullRequest'} {
+				id
 				title
       			titleHTML
 				projectCards {
