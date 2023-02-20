@@ -67,7 +67,7 @@ const generateMutationQuery = require('./generate-mutation-query')
             }
         }
 
-        if (findIssuesFromGitLogs && updatedCards.length) {
+        if (issueIds.filter((x) => x).length && updatedCards.length) {
             core.debug(JSON.stringify(updatedCards))
 
             const summaryMarkdown = `# Affected project cards
