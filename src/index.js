@@ -68,7 +68,7 @@ const generateMutationQuery = require('./generate-mutation-query')
                 } else {
                     console.log(`✅ Card materialised into ${column} in ${project}`)
                 }
-            } catch (error) {
+            } catch {
                 updatedCards[updatedCards.length - 1].status = 'Failure'
             }
         }
