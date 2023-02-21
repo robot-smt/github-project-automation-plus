@@ -1,3 +1,5 @@
+const core = require('@actions/core')
+
 /**
  * Fetch the relevant data from GitHub
  *
@@ -12,6 +14,7 @@ const getActionData = (githubContext, issueIds) => {
     }
 
     if (issueIds.length > 0) {
+        core.debug('Issue ids length greater than 0')
         return issueIds.map((x) => ({
             eventName: 'issues',
             action: payload.action,
@@ -21,25 +24,31 @@ const getActionData = (githubContext, issueIds) => {
     }
 
     if (eventName === 'issues' || eventName === 'issue_comment') {
-        return [{
-            eventName,
-            action: payload.action,
-            nodeId: payload.issue.node_id,
-            url: payload.issue.html_url
-        }]
+        core.debug('Triggered by issues')
+        return [
+            {
+                eventName,
+                action: payload.action,
+                nodeId: payload.issue.node_id,
+                url: payload.issue.html_url
+            }
+        ]
     }
 
+    core.debug('Triggered by pull request')
     const issueId = payload.pull_request.head.ref
         .replace(/\D/g, ' ')
         .split(' ')
         .find((x) => x)
 
-    return [{
-        eventName: 'issues',
-        action: payload.action,
-        nodeId: null,
-        url: `${payload.repository.svn_url}/issues/${issueId}`
-    }]
+    return [
+        {
+            eventName: 'issues',
+            action: payload.action,
+            nodeId: null,
+            url: `${payload.repository.svn_url}/issues/${issueId}`
+        }
+    ]
 }
 
 module.exports = getActionData
