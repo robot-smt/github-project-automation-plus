@@ -20,6 +20,8 @@ const generateMutationQuery = require('./generate-mutation-query')
 
         const updatedCards = []
 
+        core.debug(`Issue ids: ${issueIds}`)
+
         for (const actionData of getActionData(github.context, issueIds)) {
             // Get data from the current action
             const { eventName, nodeId, url } = actionData
