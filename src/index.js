@@ -42,7 +42,8 @@ const generateMutationQuery = require('./generate-mutation-query')
             updatedCards.push({
                 number: resource.number,
                 title: resource.title,
-                url
+                url,
+                status: 'Success'
             })
 
             if (dryRun === 'true') {
@@ -58,13 +59,17 @@ const generateMutationQuery = require('./generate-mutation-query')
 
             core.debug(mutationQueries.join('\n'))
 
-            // Run the graphql queries
-            await Promise.all(mutationQueries.map((query) => octokit.graphql(query)))
+            try {
+                // Run the graphql queries
+                await Promise.all(mutationQueries.map((query) => octokit.graphql(query)))
 
-            if (mutationQueries.length > 1) {
-                console.log(`✅ Card materialised into to ${column} in ${mutationQueries.length} projects called ${project}`)
-            } else {
-                console.log(`✅ Card materialised into ${column} in ${project}`)
+                if (mutationQueries.length > 1) {
+                    console.log(`✅ Card materialised into to ${column} in ${mutationQueries.length} projects called ${project}`)
+                } else {
+                    console.log(`✅ Card materialised into ${column} in ${project}`)
+                }
+            } catch (error) {
+                updatedCards[updatedCards.length - 1].status = 'Failure'
             }
         }
 
@@ -72,9 +77,9 @@ const generateMutationQuery = require('./generate-mutation-query')
             core.debug(JSON.stringify(updatedCards))
 
             const summaryMarkdown = `# Affected project cards
-|ID|Title|
-|---|---|
-${updatedCards.map((x) => `|${x.number}|[${x.title}](${x.url})|`).join('\r\n')}`
+|ID|Title|Status|
+|---|---|---|
+${updatedCards.map((x) => `|${x.number}|[${x.title}](${x.url})|${x.status}|`).join('\r\n')}`
             core.setOutput('summaryMarkdown', summaryMarkdown)
         }
     } catch (error) {
