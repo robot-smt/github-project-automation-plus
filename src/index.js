@@ -59,7 +59,7 @@ const generateMutationQuery = require('./generate-mutation-query')
                 (fromColumns.length && !fromColumns.includes(currentActualColumn))
             ) {
                 console.log('✅ There is nothing to do with card')
-                return
+                continue
             }
 
             core.debug(mutationQueries.join('\n'))
