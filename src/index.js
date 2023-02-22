@@ -78,6 +78,8 @@ const generateMutationQuery = require('./generate-mutation-query')
             }
         }
 
+        core.setOutput('updatedCardsCount', updatedCards.filter((x) => x.status === 'Success').length)
+
         if (issueIds.filter((x) => x).length && updatedCards.length) {
             core.debug(JSON.stringify(updatedCards))
 
