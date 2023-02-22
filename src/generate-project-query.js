@@ -16,6 +16,11 @@ const projectQuery = (url, eventName, project) =>
 					nodes {
 						id
 						isArchived
+						column {
+							id
+							name
+							databaseId
+						}
 						project {
 							name
 							id
