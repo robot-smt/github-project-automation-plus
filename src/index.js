@@ -41,7 +41,7 @@ const generateMutationQuery = require('./generate-mutation-query')
             }
 
             updatedCards.push({
-                number: resource.number,
+                number: +resource.number,
                 title: resource.title,
                 url,
                 status: 'Success'
@@ -86,7 +86,12 @@ const generateMutationQuery = require('./generate-mutation-query')
             const summaryMarkdown = `# Affected project cards
 |ID|Title|Status|
 |---|---|---|
-${updatedCards.map((x) => `|${x.number}|[${x.title}](${x.url})|${x.status}|`).join('\r\n')}`
+${updatedCards
+    .sort((a, b) => (a.number > b.number ? 1 : -1))
+    .map((x) => `|${x.number}|[${x.title}](${x.url})|${x.status}|`)
+    .join('\r\n')}
+`
+
             core.setOutput('summaryMarkdown', summaryMarkdown)
         }
     } catch (error) {
