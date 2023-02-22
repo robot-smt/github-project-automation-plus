@@ -10,6 +10,7 @@ const generateMutationQuery = require('./generate-mutation-query')
         const token = core.getInput('repo-token')
         const project = core.getInput('project')
         const column = core.getInput('column')
+        const fromColumns = (core.getInput('from-column') || '').split(',').filter((x) => x)
         const action = core.getInput('action') || 'update'
         const issueIds = (core.getInput('issue-ids') || '').split(',').filter((x) => x)
         const dryRun = core.getInput('dryRun') || 'false'
@@ -50,9 +51,13 @@ const generateMutationQuery = require('./generate-mutation-query')
                 continue
             }
 
+            const currentActualColumn = resource.projectCards.nodes.map((x) => x.column?.name).filter((x) => x)?.[0]
             // A list of columns that line up with the user entered project and column
             const mutationQueries = generateMutationQuery(resource, project, column, nodeId || resource.nodeId, action)
-            if ((action === 'delete' || action === 'archive' || action === 'add') && mutationQueries.length === 0) {
+            if (
+                ((action === 'delete' || action === 'archive' || action === 'add') && mutationQueries.length === 0) ||
+                (fromColumns.length && !fromColumns.includes(currentActualColumn))
+            ) {
                 console.log('✅ There is nothing to do with card')
                 return
             }

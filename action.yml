@@ -11,6 +11,10 @@ inputs:
     column:
         description: 'The name of the column to move the issue or pull request to'
         required: true
+    from-column:
+        description: 'The name of the column where the issue is currently. Acts as a constraint'
+        required: false
+        default: ''
     action:
         description: |
             Can be `update`, `delete` or `archive` or `add`. This determines the type of the action
